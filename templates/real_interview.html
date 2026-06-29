@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🔥 Smart Interview AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin:0;
+  font-family:'Segoe UI';
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  background:
+    linear-gradient(rgba(8,15,25,0.9), rgba(8,15,25,0.9)),
+    url("https://images.unsplash.com/photo-1535223289827-42f1e9919769")
+    no-repeat center/cover;
+}
+
+/* CONTAINER */
+.container {
+  width: 900px;
+  padding: 30px;
+  border-radius: 20px;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 0 40px rgba(0,255,255,0.35);
+}
+
+/* TITLE */
+h2 {
+  text-align:center;
+  color:#00eaff;
+}
+
+/* ROLE */
+.role {
+  text-align:center;
+  color:#ffffff;
+  margin-bottom:15px;
+}
+
+/* QUESTION */
+.question {
+  background: rgba(0,0,0,0.6);
+  padding:18px;
+  border-radius:14px;
+  margin:20px 0;
+  font-size:17px;
+  color:#fff;
+}
+
+/* TEXTAREA */
+textarea {
+  width:100%;
+  height:110px;
+  border:none;
+  border-radius:12px;
+  padding:12px;
+  font-size:14px;
+  background:#ffffff;
+  color:#000;
+}
+
+/* BUTTONS */
+.buttons {
+  margin-top:15px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+button {
+  padding:10px 20px;
+  border:none;
+  border-radius:25px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.primary {
+  background:#00eaff;
+  color:#000;
+}
+
+.secondary {
+  background:#444;
+  color:#fff;
+}
+
+.danger {
+  background:#ff4d4d;
+  color:#fff;
+}
+
+/* STATUS BAR */
+.status-bar {
+  margin-top:20px;
+}
+
+#progressText {
+  text-align:center;
+  font-size:13px;
+  color:#ccc;
+  margin-bottom:5px;
+}
+
+/* PROGRESS BAR */
+.progress-bar {
+  width:100%;
+  height:8px;
+  background:#222;
+  border-radius:10px;
+}
+
+#progressFill {
+  height:100%;
+  width:0%;
+  background:#00eaff;
+  border-radius:10px;
+}
+
+/* FEEDBACK */
+.feedback-box {
+  margin-top:15px;
+  background:#111;
+  padding:12px;
+  border-radius:10px;
+  color:#fff;
+  white-space:pre-line;
+  border-left:4px solid #00eaff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🚀 Smart Interview AI</h2>
+<div class="role" id="roleText"></div>
+
+<div class="question" id="questionBox">Click Start</div>
+
+<textarea id="answerInput" placeholder="Type your answer here..."></textarea>
+
+<div class="buttons">
+  <button class="primary" onclick="startInterview()">Start</button>
+  <button class="secondary" onclick="prevQuestion()">Previous</button>
+  <button class="secondary" onclick="nextQuestion()">Next</button>
+  <button class="primary" onclick="submitAnswer()">Submit Answer</button>
+  <button class="danger" onclick="quitInterview()">Quit</button>
+</div>
+
+<!-- 🔥 NEW CLEAN STATUS -->
+<div class="status-bar">
+  <div id="progressText">Question 0 / 0</div>
+  <div class="progress-bar">
+    <div id="progressFill"></div>
+  </div>
+</div>
+
+<div class="feedback-box" id="feedbackBox"></div>
+
+</div>
+
+<script>
+
+let questions = [];
+let index = 0;
+let answers = [];
+
+const params = new URLSearchParams(window.location.search);
+const role = params.get("role");
+
+document.getElementById("roleText").innerText = "Role: " + role;
+
+function startInterview() {
+  fetch(`/get-questions/?role=${encodeURIComponent(role)}`)
+  .then(res => res.json())
+  .then(data => {
+    questions = data.questions;
+    index = 0;
+    answers = [];
+    showQuestion();
+  });
+}
+
+function showQuestion() {
+  document.getElementById("questionBox").innerText = questions[index];
+  document.getElementById("answerInput").value = answers[index] || "";
+  document.getElementById("feedbackBox").innerText = "";
+
+  // 🔥 progress text
+  document.getElementById("progressText").innerText =
+    `Question ${index+1} / ${questions.length}`;
+
+  // 🔥 progress bar
+  let percent = ((index+1) / questions.length) * 100;
+  document.getElementById("progressFill").style.width = percent + "%";
+}
+
+function nextQuestion() {
+  if(index < questions.length - 1){
+    saveAnswer();
+    index++;
+    showQuestion();
+  }
+}
+
+function prevQuestion() {
+  if(index > 0){
+    saveAnswer();
+    index--;
+    showQuestion();
+  }
+}
+
+function saveAnswer(){
+  answers[index] = document.getElementById("answerInput").value;
+}
+
+function submitAnswer(){
+
+  let answer = document.getElementById("answerInput").value;
+
+  fetch("/evaluate-answer/", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "X-CSRFToken":"{{ csrf_token }}"
+    },
+    body: JSON.stringify({
+      question: questions[index],
+      answer: answer,
+      role: role
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("feedbackBox").innerText =
+      `Score: ${data.score}/5\n\n${data.feedback}\n\nCorrect Answer:\n${data.correct}`;
+  });
+}
+
+function quitInterview(){
+  if(confirm("Are you sure?")){
+    window.location.href = "/dashboard/";
+  }
+}
+
+</script>
+
+</body>
+</html>

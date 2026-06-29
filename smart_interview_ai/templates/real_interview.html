@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Real Interview Mode | Smart Interview AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(10,20,30,0.9), rgba(10,20,30,0.9)),
+        url("https://images.unsplash.com/photo-1551836022-deb4988cc6c0?auto=format&fit=crop&w=1600&q=80")
+        no-repeat center/cover;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #eaf2ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .panel {
+      width: min(92vw, 900px);
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 28px 26px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.6);
+      text-align: center;
+    }
+
+    h1 { color: #00e5ff; margin-bottom: 6px; }
+    .subtitle { color: #bcdcff; font-size: 14px; margin-bottom: 16px; }
+
+    .timer {
+      font-size: 22px;
+      font-weight: bold;
+      margin: 10px 0 18px;
+      color: #00ffcc;
+      text-shadow: 0 0 10px rgba(0,255,204,.6);
+    }
+
+    .question-box {
+      background: rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 18px;
+      margin: 16px 0 20px;
+      box-shadow: 0 0 18px rgba(0,229,255,.25);
+      font-size: 18px;
+      line-height: 1.6;
+      min-height: 80px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .btn {
+      padding: 12px 22px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      background: linear-gradient(135deg, #00e5ff, #00bcd4);
+      color: #002b33;
+      box-shadow: 0 0 18px rgba(0,229,255,.6);
+    }
+
+    .btn.secondary {
+      background: rgba(255,255,255,.12);
+      color: #eaf2ff;
+      box-shadow: none;
+    }
+
+    .progress {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #bcdcff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="panel">
+    <h1>🔥 Real Interview Mode</h1>
+    <div class="subtitle">
+      Timed questions • No back • Real placement simulation
+    </div>
+
+    <div class="timer" id="timer">⏳ 60s</div>
+
+    <div class="question-box" id="questionBox">
+      Click "Start Interview" to begin.
+    </div>
+
+    <div class="progress" id="progress">
+      Question 0 / 5
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="startBtn" onclick="startInterview()">Start Interview</button>
+      <button class="btn secondary" onclick="nextQuestion()">Next Question</button>
+      <button class="btn secondary" onclick="finishInterview()">Finish</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      "Introduce yourself briefly.",
+      "Explain OOPS concepts in simple terms.",
+      "What is REST API?",
+      "Explain the difference between list and tuple in Python.",
+      "What is machine learning?"
+    ];
+
+    const TOTAL = questions.length;
+    let index = 0;
+    let timeLimit = 60;
+    let timeLeft = timeLimit;
+    let timerInterval = null;
+    let started = false;
+
+    const timerEl = document.getElementById("timer");
+    const questionBox = document.getElementById("questionBox");
+    const progress = document.getElementById("progress");
+    const startBtn = document.getElementById("startBtn");
+
+    function render() {
+      questionBox.innerText = questions[index];
+      progress.innerText = `Question ${index + 1} / ${TOTAL}`;
+      resetTimer();
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timeLeft = timeLimit;
+      timerEl.innerText = `⏳ ${timeLeft}s`;
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerEl.innerText = `⏳ ${timeLeft}s`;
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          nextQuestion();
+        }
+      }, 1000);
+    }
+
+    function startInterview() {
+      started = true;
+      startBtn.style.display = "none";
+      index = 0;
+      render();
+    }
+
+    function nextQuestion() {
+      if (!started) {
+        alert("First click Start Interview!");
+        return;
+      }
+
+      if (index < TOTAL - 1) {
+        index++;
+        render();
+      } else {
+        finishInterview();
+      }
+    }
+
+    function finishInterview() {
+      clearInterval(timerInterval);
+      alert("Interview completed!");
+      window.location.href = "/result/";
+    }
+  </script>
+
+</body>
+</html>

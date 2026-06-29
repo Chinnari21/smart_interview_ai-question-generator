@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Success</title>
+  <style>
+    body{
+      background:#0f2027;
+      color:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+      font-family:Arial;
+    }
+    .box{
+      text-align:center;
+      padding:40px;
+      border-radius:12px;
+      background:rgba(0,255,255,0.1);
+      box-shadow:0 0 20px cyan;
+      animation: pop 1s ease;
+    }
+    @keyframes pop{
+      0%{transform:scale(0.5);opacity:0}
+      100%{transform:scale(1);opacity:1}
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>✅ Registration Successful</h1>
+    <p>Redirecting to Login...</p>
+  </div>
+
+  <script>
+    setTimeout(() => {
+      window.location.href = "/login/";
+    }, 2000);
+  </script>
+</body>
+</html>

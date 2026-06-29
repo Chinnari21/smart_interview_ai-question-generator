@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Resume Interview Setup</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #0f2027, #203a43, #000);
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(12px);
+      border-radius: 18px;
+      padding: 28px;
+      width: 95%;
+      max-width: 560px;
+      box-shadow: 0 0 22px rgba(0,255,255,0.35);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #00f7ff;
+      text-align: center;
+    }
+
+    label {
+      font-weight: 600;
+      color: #bff7ff;
+    }
+
+    input[type="file"], select {
+      width: 100%;
+      margin: 10px 0 14px;
+      padding: 10px;
+      background: #0b1b22;
+      color: #fff;
+      border-radius: 8px;
+      border: 1px solid #00f7ff;
+      outline: none;
+    }
+
+    .modes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 14px 0 18px;
+    }
+
+    .mode {
+      border: 1px solid #00f7ff;
+      border-radius: 12px;
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.2s;
+      background: rgba(0, 247, 255, 0.06);
+      user-select: none;
+    }
+
+    .mode:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 12px rgba(0, 247, 255, 0.5);
+    }
+
+    .mode input {
+      display: none;
+    }
+
+    .mode.selected {
+      background: linear-gradient(135deg, #00f7ff, #00ffb3);
+      color: #000;
+      font-weight: 700;
+    }
+
+    .actions {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 12px 28px;
+      border-radius: 30px;
+      border: none;
+      background: linear-gradient(90deg, #00f7ff, #00ffb3);
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(0,255,255,0.6);
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.06);
+      box-shadow: 0 0 22px rgba(0,255,255,0.9);
+    }
+
+    .error {
+      color: #ff9b9b;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>📄 Resume Interview Setup</h2>
+
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <label>Upload Resume</label>
+      <input type="file" name="resume" required>
+
+      <label>Select Level</label>
+      <select name="level" required>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+
+      <label>Interview Type</label>
+      <select name="interview_type" required>
+        <option value="resume">Resume-Based</option>
+        <option value="technical">Technical</option>
+        <option value="hr">HR Interview</option>
+      </select>
+
+      <!-- 🔥 Interview Mode Selection -->
+      <label>Choose Interview Mode</label>
+      <div class="modes">
+        <label class="mode selected" id="modeChat">
+          🗨️ Chat
+          <input type="radio" name="mode" value="chat" checked>
+        </label>
+        <label class="mode" id="modeVoice">
+          🎤 Voice
+          <input type="radio" name="mode" value="voice">
+        </label>
+        <label class="mode" id="modeVideo">
+          🎥 Video
+          <input type="radio" name="mode" value="video">
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="submit">Start Interview 🚀</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const modes = document.querySelectorAll(".mode");
+
+    modes.forEach(m => {
+      m.addEventListener("click", () => {
+        modes.forEach(x => x.classList.remove("selected"));
+        m.classList.add("selected");
+        m.querySelector("input").checked = true;
+      });
+    });
+  </script>
+
+</body>
+</html>

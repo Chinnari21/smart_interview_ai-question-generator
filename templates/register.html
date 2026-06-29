@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register | Smart Interview AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: 
+        linear-gradient(rgba(5,10,20,0.6), rgba(5,10,20,0.7)),
+        url("https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=1600&q=80")
+        no-repeat center center/cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+    }
+
+    .register-card {
+      width: 360px;
+      padding: 35px 30px;
+      border-radius: 16px;
+      background: rgba(10, 15, 25, 0.75);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 40px rgba(0, 229, 255, 0.5);
+      border: 1px solid rgba(255,255,255,0.18);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 5px;
+      background: linear-gradient(90deg, #00e5ff, #00ffc6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border-radius: 8px;
+      border: none;
+      background: rgba(12,12,12,0.6);
+      color: white;
+      box-sizing: border-box;
+    }
+
+    .password-field {
+      position: relative;
+    }
+
+    .password-field input {
+      padding-right: 45px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+      cursor: pointer;
+      display: none;
+    }
+
+    /* RULES BOX */
+    .rules-box {
+      display: none;
+      text-align: left;
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(0, 229, 255, 0.08);
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      backdrop-filter: blur(8px);
+      font-size: 12px;
+      color: #ccc;
+    }
+
+    .rules-box p {
+      margin: 0 0 6px;
+      font-weight: bold;
+      color: #00e5ff;
+    }
+
+    .rules-box ul {
+      padding-left: 15px;
+      margin: 0;
+    }
+
+    .rules-box li {
+      margin-bottom: 4px;
+    }
+
+    /* 🔥 MATCH ERROR */
+    .match-error {
+      display: none;
+      color: #ff6b6b;
+      font-size: 12px;
+      text-align: left;
+      margin-top: -8px;
+      margin-bottom: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 25px;
+      border: none;
+      background: linear-gradient(90deg, #00e5ff, #00ffc6);
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .login-link {
+      margin-top: 15px;
+      font-size: 13px;
+      color: #ccc;
+    }
+
+    .login-link a {
+      color: #00e5ff;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="register-card">
+  <h2>Smart Interview AI</h2>
+  <p class="subtitle">Create your account</p>
+
+  <form method="POST" onsubmit="return validateForm()">
+    {% csrf_token %}
+
+    <input type="text" name="username" placeholder="Username" required>
+    <input type="email" name="email" placeholder="Email" required>
+
+    <!-- PASSWORD -->
+    <div class="password-field">
+      <input type="password" id="password" name="password" placeholder="Password"
+             oninput="handleInput('password','eye1'); checkRules(); checkMatch()" required>
+      <span id="eye1" class="toggle-password"
+            onclick="togglePassword('password', this)">👁</span>
+    </div>
+
+    <!-- CONFIRM -->
+    <div class="password-field">
+      <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password"
+             oninput="handleInput('confirm_password','eye2'); checkMatch()" required>
+      <span id="eye2" class="toggle-password"
+            onclick="togglePassword('confirm_password', this)">👁</span>
+    </div>
+
+    <!-- 🔥 MATCH ERROR -->
+    <p id="matchError" class="match-error">Passwords do not match</p>
+
+    <!-- RULES -->
+    <div id="rules" class="rules-box">
+      <p>Password must include:</p>
+      <ul>
+        <li id="r1">Uppercase letter</li>
+        <li id="r2">Lowercase letter</li>
+        <li id="r3">Number</li>
+        <li id="r4">Special character</li>
+        <li id="r5">Minimum 8 characters</li>
+      </ul>
+    </div>
+
+    <button type="submit">Register</button>
+  </form>
+
+  <div class="login-link">
+    Already have an account? <a href="/login/">Login here</a>
+  </div>
+
+</div>
+
+<script>
+function togglePassword(id, el) {
+  const input = document.getElementById(id);
+  input.type = input.type === "password" ? "text" : "password";
+}
+
+function handleInput(id, eyeId) {
+  const input = document.getElementById(id);
+  const eye = document.getElementById(eyeId);
+  eye.style.display = input.value.length > 0 ? "block" : "none";
+}
+
+function checkRules() {
+  const pass = document.getElementById("password").value;
+  const box = document.getElementById("rules");
+
+  let valid = true;
+
+  if (!/[A-Z]/.test(pass)) valid = false;
+  if (!/[a-z]/.test(pass)) valid = false;
+  if (!/[0-9]/.test(pass)) valid = false;
+  if (!/[^A-Za-z0-9]/.test(pass)) valid = false;
+  if (pass.length < 8) valid = false;
+
+  box.style.display = (pass.length > 0 && !valid) ? "block" : "none";
+
+  document.getElementById("r1").style.color = /[A-Z]/.test(pass) ? "#00ff99" : "#ccc";
+  document.getElementById("r2").style.color = /[a-z]/.test(pass) ? "#00ff99" : "#ccc";
+  document.getElementById("r3").style.color = /[0-9]/.test(pass) ? "#00ff99" : "#ccc";
+  document.getElementById("r4").style.color = /[^A-Za-z0-9]/.test(pass) ? "#00ff99" : "#ccc";
+  document.getElementById("r5").style.color = pass.length >= 8 ? "#00ff99" : "#ccc";
+}
+
+// 🔥 MATCH CHECK
+function checkMatch() {
+  const pass = document.getElementById("password").value;
+  const confirm = document.getElementById("confirm_password").value;
+  const error = document.getElementById("matchError");
+
+  if (confirm.length > 0 && pass !== confirm) {
+    error.style.display = "block";
+  } else {
+    error.style.display = "none";
+  }
+}
+
+function validateForm() {
+  const pass = document.getElementById("password").value;
+  const confirm = document.getElementById("confirm_password").value;
+
+  if (
+    pass.length < 8 ||
+    !/[a-z]/.test(pass) ||
+    !/[A-Z]/.test(pass) ||
+    !/[0-9]/.test(pass) ||
+    !/[^A-Za-z0-9]/.test(pass)
+  ) return false;
+
+  if (pass !== confirm) {
+    document.getElementById("matchError").style.display = "block";
+    return false;
+  }
+
+  return true;
+}
+</script>
+
+</body>
+</html>

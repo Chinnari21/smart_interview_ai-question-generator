@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Voice Recordings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <style>
+    body{
+      margin:0; min-height:100vh;
+      background: linear-gradient(rgba(10,20,30,0.9), rgba(10,20,30,0.9)),
+        url("https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80")
+        no-repeat center/cover;
+      font-family:'Segoe UI',sans-serif; color:#fff;
+      display:flex; justify-content:center; align-items:center;
+    }
+
+    .container{
+      width:95%; max-width:1000px;
+      background:rgba(0,0,0,0.65);
+      backdrop-filter:blur(14px);
+      border-radius:22px;
+      padding:22px;
+      box-shadow:0 0 35px rgba(0,229,255,0.35);
+    }
+
+    h1{
+      margin:0 0 12px;
+      background:linear-gradient(90deg,#00e5ff,#00ffc6);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+
+    .card{
+      background:rgba(0,0,0,0.5);
+      border-radius:16px;
+      padding:12px;
+      margin-bottom:10px;
+    }
+
+    audio{
+      width:100%;
+      margin-top:6px;
+    }
+
+    .meta{
+      font-size:12px;
+      color:#9ad;
+    }
+
+    .actions{
+      margin-top:6px;
+      display:flex;
+      gap:8px;
+    }
+
+    .btn{
+      padding:8px 14px;
+      border-radius:14px;
+      border:none;
+      cursor:pointer;
+      background:linear-gradient(90deg,#00e5ff,#00ffc6);
+      color:#003333;
+      font-weight:600;
+      font-size:12px;
+      text-decoration:none;
+    }
+
+    .btn.secondary{
+      background:transparent;
+      color:#38bdf8;
+      box-shadow:inset 0 0 0 1px rgba(56,189,248,0.6);
+    }
+
+    /* 🔥 NEW RESULT BUTTON */
+    .result-btn{
+      margin-top:20px;
+      padding:12px 20px;
+      border-radius:20px;
+      border:none;
+      background:linear-gradient(135deg,#00e5ff,#00bcd4);
+      color:#002b33;
+      font-weight:bold;
+      cursor:pointer;
+      box-shadow:0 0 20px rgba(0,229,255,0.6);
+      transition:0.3s;
+    }
+
+    .result-btn:hover{
+      transform:scale(1.05);
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>🎤 My Voice Recordings</h1>
+
+    {% for r in recordings %}
+      <div class="card">
+        <audio controls src="{{ r.file.url }}"></audio>
+        <div class="meta">{{ r.created_at|date:"d M Y, h:i A" }}</div>
+
+        <div class="actions">
+          <a class="btn" href="{{ r.file.url }}" download>⬇️ Download</a>
+
+          <a class="btn secondary"
+             href="{% url 'delete_voice_recording' r.id %}"
+             onclick="return confirm('Delete this recording?');">
+             🗑️ Delete
+          </a>
+        </div>
+      </div>
+    {% empty %}
+      <p>No voice recordings yet.</p>
+    {% endfor %}
+
+    <!-- 🔥 ACTION BUTTONS -->
+    <div style="margin-top:16px; text-align:center;">
+      <a href="/voice/" class="btn">🎙️ Record New</a>
+      <a href="/dashboard/" class="btn secondary">🏠 Dashboard</a>
+
+      <!-- ✅ NEW BUTTON -->
+      <br><br>
+      <button class="result-btn" onclick="goToResult()">
+        📊 View Interview Result
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ✅ JS -->
+  <script>
+    function goToResult() {
+      window.location.href = "/result/";
+    }
+  </script>
+
+</body>
+</html>

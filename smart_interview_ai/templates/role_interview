@@ -1,0 +1,6 @@
+<h2>Role Based Interview Questions</h2>
+<ul>
+  {% for q in questions %}
+    <li>{{ q }}</li>
+  {% endfor %}
+</ul>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Resume | Smart Interview AI</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #0f2027, #203a43, #000);
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(12px);
+      border-radius: 18px;
+      padding: 30px;
+      width: 90%;
+      max-width: 520px;
+      box-shadow: 0 0 25px rgba(0,255,255,0.4);
+      text-align: center;
+    }
+
+    h2 { color: #00f7ff; }
+
+    input[type="file"], select {
+      width: 100%;
+      margin: 12px 0;
+      padding: 10px;
+      background: #111;
+      color: #fff;
+      border-radius: 8px;
+      border: 1px solid #00f7ff;
+    }
+
+    .modes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 14px 0 18px;
+    }
+
+    .mode {
+      border: 1px solid #00f7ff;
+      border-radius: 12px;
+      padding: 10px 6px;
+      cursor: pointer;
+      user-select: none;
+      transition: 0.2s;
+      background: rgba(0, 247, 255, 0.06);
+    }
+
+    .mode:hover {
+      box-shadow: 0 0 12px rgba(0, 247, 255, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .mode input {
+      display: none;
+    }
+
+    .mode.selected {
+      background: linear-gradient(135deg, #00f7ff, #00ffb3);
+      color: #000;
+      font-weight: bold;
+    }
+
+    button {
+      padding: 12px 28px;
+      border-radius: 30px;
+      border: none;
+      background: linear-gradient(90deg, #00f7ff, #00ffb3);
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(0,255,255,0.6);
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 22px rgba(0,255,255,0.9);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>📄 Upload Your Resume</h2>
+    <p>Select your resume and interview preferences.</p>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <input type="file" name="resume" accept=".pdf,.doc,.docx" required>
+
+      <!-- Level -->
+      <select name="level" required>
+        <option value="" disabled selected>Select Difficulty Level</option>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+
+      <!-- Interview Type -->
+      <select name="interview_type" required>
+        <option value="" disabled selected>Select Interview Type</option>
+        <option value="resume">Resume-Based Interview</option>
+        <option value="hr">HR Interview</option>
+      </select>
+
+      <!-- 🔥 Interview Mode -->
+      <div class="modes">
+        <label class="mode selected">
+          🗨️ Chat
+          <input type="radio" name="mode" value="chat" checked>
+        </label>
+        <label class="mode">
+          🎤 Voice
+          <input type="radio" name="mode" value="voice">
+        </label>
+        <label class="mode">
+          🎥 Video
+          <input type="radio" name="mode" value="video">
+        </label>
+      </div>
+
+      <button type="submit">Start Interview 🚀</button>
+    </form>
+  </div>
+
+  <script>
+    const modes = document.querySelectorAll(".mode");
+    modes.forEach(m => {
+      m.addEventListener("click", () => {
+        modes.forEach(x => x.classList.remove("selected"));
+        m.classList.add("selected");
+        m.querySelector("input").checked = true;
+      });
+    });
+  </script>
+
+</body>
+</html>

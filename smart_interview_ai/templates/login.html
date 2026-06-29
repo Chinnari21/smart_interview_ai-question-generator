@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | Smart Interview AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background:
+        linear-gradient(rgba(5,10,20,0.6), rgba(5,10,20,0.7)),
+        url("https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80")
+        no-repeat center center/cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+    }
+
+    .login-card {
+      width: 360px;
+      padding: 35px 30px;
+      border-radius: 16px;
+      background: rgba(10, 15, 25, 0.75);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 40px rgba(0, 229, 255, 0.5);
+      border: 1px solid rgba(255,255,255,0.18);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 5px;
+      background: linear-gradient(90deg, #00e5ff, #00ffc6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border-radius: 8px;
+      border: none;
+      background: rgba(12,12,12,0.6);
+      color: white;
+      box-sizing: border-box;
+    }
+
+    /* 🔥 PASSWORD FIELD */
+    .password-field {
+      position: relative;
+    }
+
+    .password-field input {
+      padding-right: 45px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+      cursor: pointer;
+      display: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 25px;
+      border: none;
+      background: linear-gradient(90deg, #00e5ff, #00ffc6);
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .forgot {
+      display: block;
+      text-align: right;
+      font-size: 12px;
+      margin-top: -5px;
+      margin-bottom: 10px;
+      color: #00e5ff;
+      text-decoration: none;
+    }
+
+    .forgot:hover {
+      color: #00ffc6;
+    }
+
+    .links {
+      margin-top: 15px;
+      font-size: 13px;
+      color: #ccc;
+    }
+
+    .links a {
+      color: #00e5ff;
+      text-decoration: none;
+    }
+
+    .links a:hover {
+      color: #00ffc6;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="login-card">
+  <h2>Smart Interview AI</h2>
+  <p class="subtitle">GenAI Powered Interview Practice Platform</p>
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <input type="text" name="username" placeholder="Username" required>
+
+    <!-- 🔥 PASSWORD WITH EYE -->
+    <div class="password-field">
+      <input type="password" id="password" name="password" placeholder="Password"
+             oninput="handleInput('password','eye1')" required>
+      <span id="eye1" class="toggle-password"
+            onclick="togglePassword('password')">👁</span>
+    </div>
+
+    <!-- 🔥 FORGOT PASSWORD -->
+    <a href="/forgot-password/" class="forgot">Forgot Password?</a>
+
+    <button type="submit">Login</button>
+  </form>
+
+  <div class="links">
+    Don’t have an account? <a href="/register/">Register here</a>
+  </div>
+
+</div>
+
+<script>
+function togglePassword(id) {
+  const input = document.getElementById(id);
+  input.type = input.type === "password" ? "text" : "password";
+}
+
+function handleInput(id, eyeId) {
+  const input = document.getElementById(id);
+  const eye = document.getElementById(eyeId);
+  eye.style.display = input.value.length > 0 ? "block" : "none";
+}
+</script>
+
+</body>
+</html>

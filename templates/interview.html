@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>AI Mock Interview | Smart Interview AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(10,20,30,0.85), rgba(10,20,30,0.85)),
+        url("https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80")
+        no-repeat center/cover;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #eaf2ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .room {
+      width: min(92vw, 1100px);
+      height: min(85vh, 700px);
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.6);
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      overflow: hidden;
+    }
+
+    .interviewer {
+      background: linear-gradient(180deg, rgba(0,229,255,.15), rgba(0,0,0,.5));
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid rgba(255,255,255,.1);
+    }
+
+    .avatar {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 30%, #00e5ff, #006b7a);
+      box-shadow: 0 0 25px rgba(0,229,255,.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 14px;
+    }
+
+    .interviewer p {
+      font-size: 14px;
+      color: #ccefff;
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    .conversation {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    .question-box {
+      margin: 30px 0 16px;
+      padding: 18px 20px;
+      background: rgba(255,255,255,.06);
+      border-radius: 16px;
+      font-size: 20px;
+      line-height: 1.5;
+      box-shadow: 0 0 18px rgba(0,229,255,.3);
+    }
+
+    .answer-box {
+      margin-top: 10px;
+      padding: 14px 16px;
+      background: rgba(0,0,0,.4);
+      border-radius: 14px;
+      min-height: 90px;
+      font-size: 14px;
+      color: #ddd;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #00e5ff, #00bcd4);
+      color: #002b33;
+      font-weight: bold;
+      box-shadow: 0 0 16px rgba(0,229,255,.6);
+    }
+
+    .btn.secondary {
+      background: rgba(255,255,255,.12);
+      color: #eaf2ff;
+      box-shadow: none;
+    }
+
+    .mic {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #ff5a7a, #ff8fa3);
+      color: #2a000a;
+      font-size: 22px;
+      box-shadow: 0 0 20px rgba(255,90,122,.8);
+    }
+
+    .mic.listening {
+      box-shadow: 0 0 28px rgba(255,90,122,1);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="room">
+    <!-- Left: AI Interviewer -->
+    <div class="interviewer">
+      <div class="avatar">AI</div>
+      <p>Your virtual interviewer is ready to begin.<br>Answer naturally, like a real interview.</p>
+    </div>
+
+    <!-- Right: Conversation -->
+    <div class="conversation">
+      <div class="header">
+        <div>Mode: <b>{{ mode }}</b> | Level: <b>{{ level }}</b> | Skill: <b>{{ skill }}</b></div>
+        <div id="timerBox">⏳</div>
+      </div>
+
+      <div>
+        <div class="question-box" id="questionBox">
+          Click “Start Interview” to begin.
+        </div>
+
+        <div class="answer-box" id="transcriptBox">
+          Your spoken/typed answer will appear here...
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn secondary" onclick="goBack()">⬅ Back</button>
+        <button class="btn" onclick="askQuestion()">▶ Start Interview</button>
+        <button class="mic" id="micBtn" onclick="toggleListening()">🎙</button>
+        <button class="btn secondary" onclick="repeatQuestion()">🔁 Repeat</button>
+        <button class="btn" onclick="nextQuestion()">Next ➡</button>
+        <button class="btn secondary" onclick="finishInterview()">Finish</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TIMER_ENABLED = "{{ timer_enabled }}" === "on";
+    const TIME_LIMIT = parseInt("{{ time_limit|default:60 }}");
+    const SKILL = "{{ skill }}";
+
+    let timer = null;
+    let timeLeft = TIME_LIMIT;
+
+    const questionBox = document.getElementById("questionBox");
+    const transcriptBox = document.getElementById("transcriptBox");
+    const timerBox = document.getElementById("timerBox");
+    const micBtn = document.getElementById("micBtn");
+
+    function speak(text) {
+      if (!("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      speechSynthesis.speak(u);
+    }
+
+    function startTimer() {
+      if (!TIMER_ENABLED) { timerBox.style.display = "none"; return; }
+      clearInterval(timer);
+      timeLeft = TIME_LIMIT;
+      timerBox.innerText = "⏳ " + timeLeft + "s";
+      timer = setInterval(() => {
+        timeLeft--;
+        timerBox.innerText = "⏳ " + timeLeft + "s";
+        if (timeLeft <= 0) nextQuestion();
+      }, 1000);
+    }
+
+    async function askQuestion() {
+      const res = await fetch("/api/next-question/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({
+          skill: SKILL,
+          answer: transcriptBox.innerText
+        })
+      });
+      const data = await res.json();
+      questionBox.innerText = data.question;
+      transcriptBox.innerText = "Listening to your answer...";
+      speak(data.question);
+      startTimer();
+    }
+
+    function repeatQuestion() { speak(questionBox.innerText); }
+    function nextQuestion() { askQuestion(); }
+
+    function goBack() {
+      if (confirm("Exit interview?")) window.location.href = "/setup/";
+    }
+
+    function finishInterview() {
+      alert("Interview completed! Good job.");
+      window.location.href = "/result/";
+    }
+
+    // Speech Recognition
+    let recognition;
+    if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SR();
+      recognition.lang = "en-US";
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => micBtn.classList.add("listening");
+      recognition.onend = () => micBtn.classList.remove("listening");
+      recognition.onresult = (e) => {
+        let text = "";
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          text += e.results[i][0].transcript;
+        }
+        transcriptBox.innerText = text;
+      };
+    }
+
+    function toggleListening() {
+      if (!recognition) return alert("Use Chrome/Edge for mic support");
+      recognition.start();
+    }
+  </script>
+
+</body>
+</html>

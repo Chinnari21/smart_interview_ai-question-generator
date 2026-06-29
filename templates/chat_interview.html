@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat Interview | Smart Interview AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      background:
+        linear-gradient(rgba(10,20,30,0.85), rgba(10,20,30,0.85)),
+        url("https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=1600&q=80")
+        no-repeat center/cover;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .controls select, .controls button {
+      border-radius: 8px;
+      border: none;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    .quit {
+      background: #ff4d4d;
+      color: #000;
+    }
+
+    .chat-container {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bubble {
+      max-width: 75%;
+      padding: 10px;
+      border-radius: 12px;
+    }
+
+    .ai {
+      background: rgba(0,150,255,0.2);
+      align-self: flex-start;
+    }
+
+    .user {
+      background: rgba(0,255,150,0.2);
+      align-self: flex-end;
+    }
+
+    .input-bar {
+      display: flex;
+      padding: 10px;
+      background: #000;
+    }
+
+    textarea {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+    }
+
+    button {
+      padding: 10px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="chat-header">
+  <h3>Skill: {{ skills }} | Level: {{ level }}</h3>
+
+  <div class="controls">
+
+    <!-- ⏱ TIMER DISPLAY -->
+    <span id="timerBox" style="margin-right:10px; font-weight:bold; color:#00e5ff;">
+      ⏱ 0s
+    </span>
+
+    <select id="limitSelect">
+      <option value="">No limit</option>
+      <option value="3">3 Qs (Streak)</option>
+      <option value="5">5 Qs</option>
+      <option value="10">10 Qs</option>
+    </select>
+
+    <button class="quit" id="quitBtn">Quit</button>
+  </div>
+</div>
+
+<div class="chat-container" id="chatBox"></div>
+
+<form id="chatForm" class="input-bar">
+  {% csrf_token %}
+  <textarea id="answerInput" placeholder="Type your answer..." required></textarea>
+  <button type="submit">Send</button>
+</form>
+
+<script>
+const chatBox = document.getElementById("chatBox");
+const form = document.getElementById("chatForm");
+const answerInput = document.getElementById("answerInput");
+const limitSelect = document.getElementById("limitSelect");
+const quitBtn = document.getElementById("quitBtn");
+const timerBox = document.getElementById("timerBox");
+
+const skill = "{{ skills }}";
+const level = "{{ level }}";
+
+// 🔥 TIMER VALUES FROM BACKEND
+let timerEnabled = "{{ timer_enabled|default:'off' }}" === "on";
+
+let timeLimit = parseInt("{{ time_limit|default:'60' }}");
+if (isNaN(timeLimit)) timeLimit = 60;
+
+let timerInterval = null;
+let timeLeft = timeLimit;
+
+let currentQuestion = "";
+
+function addBubble(text, cls) {
+  const div = document.createElement("div");
+  div.className = "bubble " + cls;
+  div.innerText = text;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// ⏱ TIMER FUNCTION
+function startTimer() {
+  if (!timerEnabled) return;
+
+  clearInterval(timerInterval);
+  timeLeft = timeLimit;
+
+  timerInterval = setInterval(() => {
+
+    timerBox.innerText = "⏱ " + timeLeft + "s";
+
+    if (timeLeft <= 10) {
+      timerBox.style.color = "red";
+    } else {
+      timerBox.style.color = "#00e5ff";
+    }
+
+    timeLeft--;
+
+    if (timeLeft < 0) {
+      clearInterval(timerInterval);
+      timerBox.innerText = "⏱ 0s";
+
+      addBubble("⏰ Time's up!", "ai");
+
+      loadQuestion("Time up");
+    }
+
+  }, 1000);
+}
+
+async function loadQuestion(answer="") {
+
+  if (timerEnabled) startTimer();
+
+  const formData = new FormData();
+  formData.append("skill", skill);
+  formData.append("level", level);
+  formData.append("answer", answer);
+  formData.append("prev_question", currentQuestion);
+
+  const dailyLimit = limitSelect.value;
+
+  let mode = "normal";
+  if (dailyLimit === "3") mode = "streak";
+
+  formData.append("limit", dailyLimit);
+  formData.append("mode", mode);
+
+  const res = await fetch("/api/next-question/", {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await res.json();
+
+  if (data.done) {
+    clearInterval(timerInterval);
+
+    if (data.streak) {
+      window.location.href = "/streak-complete/";
+    } else {
+      window.location.href = "/interview-summary/";
+    }
+    return;
+  }
+
+  if (data.question) {
+    currentQuestion = data.question;
+    addBubble(data.question, "ai");
+  }
+}
+
+window.onload = () => loadQuestion();
+
+form.addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const ans = answerInput.value.trim();
+  if (!ans) return;
+
+  clearInterval(timerInterval);
+
+  addBubble(ans, "user");
+  answerInput.value = "";
+
+  loadQuestion(ans);
+});
+
+quitBtn.onclick = () => {
+  if (confirm("Quit interview?")) {
+    window.location.href = "/interview-summary/";
+  }
+};
+</script>
+
+</body>
+</html>

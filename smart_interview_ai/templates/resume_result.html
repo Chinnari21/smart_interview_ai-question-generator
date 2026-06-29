@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Interview Result | Smart Interview AI</title>
+  <meta charset="UTF-8" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f2027;
+      color: #eaf2ff;
+      padding: 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #7dd3fc; /* soft blue */
+    }
+
+    .back {
+      color: #7dd3fc;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .card {
+      background: #162533;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .q {
+      color: #93c5fd; /* light blue */
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .label {
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+
+    .score {
+      color: #34d399; /* green */
+      font-weight: 700;
+    }
+
+    .section {
+      margin-top: 6px;
+      color: #e5e7eb;
+      line-height: 1.5;
+    }
+
+    /* 🔥 Styled headings */
+    .feedback-title {
+      color: #fbbf24;   /* soft amber */
+      font-weight: 700;
+    }
+
+    .correct-title {
+      color: #34d399;   /* soft green */
+      font-weight: 700;
+    }
+
+    .feedback-box {
+      background: rgba(251, 191, 36, 0.08);
+      border-left: 3px solid #fbbf24;
+      padding: 8px 10px;
+      border-radius: 6px;
+      margin-top: 8px;
+      color: #dbeafe;
+      line-height: 1.5;
+    }
+
+    .correct-box {
+      background: rgba(52, 211, 153, 0.08);
+      border-left: 3px solid #34d399;
+      padding: 8px 10px;
+      border-radius: 6px;
+      margin-top: 8px;
+      color: #e5e7eb;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="title">📊 Interview Results</div>
+    <a class="back" href="/dashboard/">⬅ Dashboard</a>
+  </div>
+
+  {% if results %}
+    {% for r in results %}
+      <div class="card">
+        <div class="q">Question</div>
+        <div class="section">{{ r.question_text }}</div>
+
+        <div class="section">
+          <span class="label">Your Answer:</span>
+          {{ r.user_answer|default:"—" }}
+        </div>
+
+        <div class="section">
+          <span class="label">Score:</span>
+          <span class="score">{{ r.score|default:0 }}/10</span>
+        </div>
+
+        <!-- ✅ Feedback -->
+        <div class="feedback-box">
+          <span class="feedback-title">Feedback</span><br/>
+          {{ r.feedback|linebreaksbr }}
+        </div>
+
+        <!-- ✅ Correct Answer -->
+        {% if r.correct_answer %}
+          <div class="correct-box">
+            <span class="correct-title">Correct Answer</span><br/>
+            {{ r.correct_answer }}
+          </div>
+        {% endif %}
+
+        <!-- Explanation (normal style) -->
+        {% if r.explanation %}
+          <div class="section">
+            <span class="label">Explanation:</span><br/>
+            {{ r.explanation }}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>No interview results found.</p>
+  {% endif %}
+
+</body>
+</html>

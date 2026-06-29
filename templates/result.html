@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Interview Result | Smart Interview AI</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(10,20,30,0.9), rgba(10,20,30,0.9)),
+        url("https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80")
+        no-repeat center/cover;
+      font-family: 'Segoe UI', sans-serif;
+      color: #eaf2ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .result-card {
+      width: 900px;
+      background: rgba(0,0,0,0.65);
+      border-radius: 24px;
+      padding: 30px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #00e5ff;
+    }
+
+    .avg-rating {
+      margin: 15px 0;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(0,229,255,0.1);
+      border: 1px solid rgba(0,229,255,0.4);
+      font-weight: bold;
+      color: #00e5ff;
+      box-shadow: 0 0 10px rgba(0,229,255,0.4);
+    }
+
+    .feedback-box textarea, .feedback-box input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 6px;
+      border: none;
+    }
+
+    .star {
+      font-size: 24px;
+      cursor: pointer;
+      color: #555;
+    }
+
+    .star.selected {
+      color: gold;
+      text-shadow: 0 0 6px gold;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg,#00e5ff,#00bcd4);
+    }
+
+    .skip-btn {
+      background: #444;
+      color: #fff;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .note {
+      font-size: 13px;
+      color: #aaa;
+      margin-top: 8px;
+    }
+
+    .popup {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0,0,0,0.7);
+    }
+
+    .popup-content {
+      background: #111;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #00e5ff;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="result-card">
+
+  <h2>🎉 Interview Completed</h2>
+
+  <div class="avg-rating">
+    ⭐ Avg Rating: {{ avg_rating|floatformat:1 }}/5
+  </div>
+
+  <div class="feedback-box">
+    <h3>⭐ Rate Your Experience</h3>
+
+    <div>
+      <span class="star" data-val="1">★</span>
+      <span class="star" data-val="2">★</span>
+      <span class="star" data-val="3">★</span>
+      <span class="star" data-val="4">★</span>
+      <span class="star" data-val="5">★</span>
+    </div>
+
+    <div class="note">Rating is optional 🙂</div>
+
+    <textarea id="feedbackText" placeholder="What did you like? What can we improve?"></textarea>
+    <input id="doubtText" placeholder="Any doubts?" />
+
+    <!-- 🔥 BUTTONS -->
+    <div class="btn-group">
+      <button class="btn submit-btn" onclick="submitFeedback()">
+        📤 Submit Feedback
+      </button>
+
+      <button class="btn skip-btn" onclick="goToDashboard()">
+        ⏭ Skip
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- 🔥 POPUP -->
+<div id="successPopup" class="popup">
+  <div class="popup-content">
+    <h2>✅ Feedback Saved!</h2>
+    <p>Redirecting to dashboard...</p>
+  </div>
+</div>
+
+<script>
+let rating = 0;
+
+const stars = document.querySelectorAll(".star");
+
+stars.forEach(star => {
+  star.addEventListener("click", () => {
+    rating = star.getAttribute("data-val");
+
+    stars.forEach(s => s.classList.remove("selected"));
+    stars.forEach(s => {
+      if (s.getAttribute("data-val") <= rating)
+        s.classList.add("selected");
+    });
+  });
+});
+
+function submitFeedback() {
+
+  const feedback = document.getElementById("feedbackText").value;
+  const doubt = document.getElementById("doubtText").value;
+
+  fetch("/save-feedback/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": getCSRFToken()
+    },
+    body: JSON.stringify({
+      rating: rating, // optional now
+      feedback: feedback,
+      doubt: doubt
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    showPopup();
+
+    setTimeout(() => {
+      window.location.href = "/dashboard/";
+    }, 2000);
+
+  });
+}
+
+function goToDashboard() {
+  window.location.href = "/dashboard/";
+}
+
+function showPopup() {
+  const popup = document.getElementById("successPopup");
+  popup.style.display = "flex";
+}
+
+function getCSRFToken() {
+  return document.cookie.split('; ')
+    .find(row => row.startsWith('csrftoken'))
+    .split('=')[1];
+}
+</script>
+
+</body>
+</html>

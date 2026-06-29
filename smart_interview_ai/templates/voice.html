@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Voice Interview | Smart Interview AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(10,20,30,0.85), rgba(10,20,30,0.85)),
+        url("https://images.unsplash.com/photo-1492724441997-5dc865305da7?auto=format&fit=crop&w=1600&q=80")
+        no-repeat center/cover;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: 95%;
+      max-width: 1100px;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(14px);
+      border-radius: 22px;
+      padding: 22px 25px 25px;
+      box-shadow: 0 0 35px rgba(0,229,255,0.35);
+      position: relative;
+    }
+
+    .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .nav-btn { padding:8px 14px; border-radius:20px; font-weight:600; font-size:13px; text-decoration:none;
+      background: linear-gradient(90deg, #00e5ff, #00ffc6); color:#003333; box-shadow:0 6px 16px rgba(0,229,255,0.5); }
+    .nav-btn.secondary { background:transparent; color:#38bdf8; box-shadow: inset 0 0 0 1px rgba(56,189,248,0.6); }
+
+    h1 { margin:6px 0 10px; background:linear-gradient(90deg,#00e5ff,#00ffc6);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+    .question-box { padding:14px 16px; border-radius:14px;
+      background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(124,77,255,0.15));
+      border:1px solid rgba(255,255,255,0.15); margin-bottom:8px; font-size:15px; }
+
+    .badge { display:inline-block; padding:4px 10px; border-radius:12px; font-size:11px; margin-left:8px; }
+    .badge.easy { background:#16a34a; }
+    .badge.medium { background:#f59e0b; }
+    .badge.hard { background:#ef4444; }
+
+    .tips { margin:10px 0; padding:10px 12px; border-radius:12px; background: rgba(255,255,255,0.06); font-size:12px; color:#cbd5e1; }
+
+    .mic { font-size: 80px; color: #00f7ff; margin: 20px 0; text-shadow: 0 0 20px rgba(0,255,255,0.8);
+      animation: pulse 1.5s infinite; display: none; }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.7; }
+    }
+
+    .controls { margin-top: 10px; display:flex; gap:10px; flex-wrap:wrap; }
+    .btn { padding:9px 16px; border-radius:22px; border:none; cursor:pointer; font-weight:600;
+      background: linear-gradient(90deg, #00e5ff, #00ffc6); color:#003333; box-shadow:0 6px 16px rgba(0,229,255,0.5); }
+    .btn.secondary { background:transparent; color:#38bdf8; box-shadow: inset 0 0 0 1px rgba(56,189,248,0.6); }
+
+    audio { width:100%; margin-top:10px; }
+
+    .meter { margin-top:10px; font-size:12px; color:#9ad; }
+    .bar { height:6px; background:#0b1220; border-radius:10px; overflow:hidden; margin-top:4px; }
+    .fill { height:100%; background: linear-gradient(90deg,#00e5ff,#00ffc6); width:0%; }
+
+    .footer-actions { margin-top:14px; display:flex; gap:10px; justify-content:flex-end; }
+
+    .toast {
+      position: fixed; bottom: 20px; right: 20px;
+      background: rgba(0,0,0,0.85); color: #00ffc6;
+      padding: 10px 16px; border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,229,255,0.6);
+      opacity: 0; transform: translateY(20px);
+      transition: 0.3s; pointer-events: none; font-size: 13px;
+    }
+    .toast.show { opacity:1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="topbar">
+    <a href="javascript:history.back()" class="nav-btn secondary">← Previous</a>
+    <a href="/dashboard/" class="nav-btn">🏠 Dashboard</a>
+  </div>
+
+  <h1>🎤 Voice Interview</h1>
+
+  <!-- 🔥 Dynamic Question -->
+  <div class="question-box">
+    <strong id="questionText">Loading question...</strong>
+    <span id="difficulty" class="badge easy">Easy</span>
+  </div>
+
+  <div class="tips">
+    💡 Tips: Speak clearly • Keep steady pace • Avoid long pauses • Structure answers (STAR)
+  </div>
+
+  <div class="controls">
+    <button class="btn secondary" onclick="nextQuestion()">Next Question</button>
+    <label style="font-size:12px; color:#9ad;">
+      <input type="checkbox" id="voiceToggle" checked> Read question in voice
+    </label>
+  </div>
+
+  <div style="text-align:center">
+    <div class="mic" id="micIcon">🎤</div>
+
+    <div class="controls">
+      <button class="btn" onclick="startRecording()">Start Recording</button>
+      <button class="btn secondary" onclick="stopRecording()">Stop Recording</button>
+    </div>
+
+    <p style="font-size:12px; color:#9ad;">👁️ Preview your recorded answer before saving.</p>
+
+    <audio id="audioPlayback" controls></audio>
+
+    <div class="meter">
+      🤖 Clarity (AI – Demo)
+      <div class="bar"><div id="clarityFill" class="fill"></div></div>
+    </div>
+    <div class="meter">
+      🗣️ Speech Speed (AI – Demo)
+      <div class="bar"><div id="speedFill" class="fill"></div></div>
+    </div>
+    <div class="meter">
+      💪 Confidence (AI – Demo)
+      <div class="bar"><div id="confFill" class="fill"></div></div>
+    </div>
+  </div>
+
+  <div class="footer-actions">
+    <a href="/my-voice-recordings/" class="btn">▶️ My Voice Recordings</a>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  let mediaRecorder, audioChunks = [], stream;
+
+  function showToast(msg){
+    const t=document.getElementById("toast");
+    t.textContent=msg; t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"), 2000);
+  }
+
+  // 🔥 Fetch next AI question from backend
+  async function nextQuestion(){
+    const res = await fetch("/api/voice-next-question/", {
+      method: "POST",
+      headers: { "X-CSRFToken": getCookie("csrftoken") }
+    });
+    const data = await res.json();
+
+    document.getElementById("questionText").textContent = data.question;
+
+    // Dummy difficulty badge (you can map real later)
+    const b=document.getElementById("difficulty");
+    b.className="badge easy"; 
+    b.textContent="Easy";
+
+    // 🔊 Optional TTS
+    if (document.getElementById("voiceToggle").checked) {
+      speak(data.question);
+    }
+  }
+
+  function speak(text){
+    if(!window.speechSynthesis) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    u.rate = 0.95;
+    speechSynthesis.speak(u);
+  }
+
+  function getCookie(name){
+    let v=null;
+    if(document.cookie){
+      document.cookie.split(";").forEach(c=>{
+        c=c.trim();
+        if(c.startsWith(name+"=")) v=decodeURIComponent(c.substring(name.length+1));
+      });
+    }
+    return v;
+  }
+
+  async function startRecording(){
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(audioChunks,{type:'audio/webm'});
+        audioPlayback.src = URL.createObjectURL(blob);
+
+        document.getElementById("clarityFill").style.width = (60+Math.random()*30) + "%";
+        document.getElementById("speedFill").style.width = (50+Math.random()*40) + "%";
+        document.getElementById("confFill").style.width = (55+Math.random()*35) + "%";
+
+        showToast("Voice recorded, uploading...");
+
+        const fd = new FormData();
+        fd.append("audio", blob, "voice.webm");
+
+        try{
+          const res = await fetch("/upload-voice/", { method:"POST", body: fd });
+          const data = await res.json();
+          if(data.ok) showToast("Saved to My Voice Recordings");
+          else alert("Upload failed");
+        }catch(e){
+          alert("Upload error");
+        }
+      };
+      mediaRecorder.start();
+      document.getElementById("micIcon").style.display="block";
+      showToast("Recording started");
+    }catch(err){
+      alert("Mic permission denied. Please allow microphone access.");
+    }
+  }
+
+  function stopRecording(){
+    if(mediaRecorder && mediaRecorder.state!=="inactive"){
+      mediaRecorder.stop();
+      stream.getTracks().forEach(t=>t.stop());
+      document.getElementById("micIcon").style.display="none";
+    }
+  }
+
+  // Auto load first question
+  window.onload = nextQuestion;
+</script>
+
+</body>
+</html>

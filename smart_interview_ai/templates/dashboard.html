@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Interview AI - Dashboard</title>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      height: 100vh;
+      display: flex;
+      background: 
+        linear-gradient(rgba(10,20,30,0.85), rgba(10,20,30,0.85)),
+        url("https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=1600&q=80")
+        no-repeat center center/cover;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(12px);
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0,255,255,0.3);
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      color: #00f7ff;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+    }
+
+    .sidebar ul { list-style: none; padding: 0; }
+
+    .sidebar ul li {
+      padding: 12px;
+      margin: 12px 0;
+      border-radius: 10px;
+      background: rgba(0,255,255,0.08);
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar ul li:hover {
+      background: rgba(0,255,255,0.25);
+      transform: translateX(6px);
+    }
+
+    .sidebar i { color: #00f7ff; }
+
+    .main {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 32px;
+      background: linear-gradient(90deg, #00f7ff, #00ffb3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header p { color: #ddd; margin-top: 10px; }
+
+    .cards {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+    }
+
+    .card {
+      background: rgba(0,0,0,0.6);
+      padding: 28px 22px;
+      border-radius: 18px;
+      text-align: center;
+      box-shadow: 0 0 25px rgba(0,255,255,0.25);
+      transition: 0.3s;
+      backdrop-filter: blur(6px);
+    }
+
+    .card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 0 40px rgba(0,255,255,0.7);
+    }
+
+    .card i {
+      font-size: 44px;
+      color: #00f7ff;
+      margin-bottom: 15px;
+      text-shadow: 0 0 15px rgba(0,255,255,0.8);
+    }
+
+    .card p { font-size: 14px; color: #ccc; }
+
+    .card button {
+      margin-top: 15px;
+      padding: 10px 24px;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(90deg, #00f7ff, #00ffb3);
+      color: #000;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 0 12px rgba(0,255,255,0.6);
+      transition: 0.3s;
+    }
+
+    .card button:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 22px rgba(0,255,255,0.9);
+    }
+
+    .footer {
+      margin-top: 40px;
+      text-align: right;
+      font-size: 12px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <h2> Smart Interview AI</h2>
+    <ul>
+      <li onclick="location.href='{% url 'skills' %}'"><i class="fa-solid fa-list-check"></i> Select Skills</li>
+      <li onclick="location.href='{% url 'dashboard' %}'"><i class="fa-solid fa-house"></i> Dashboard</li>
+      <li onclick="location.href='{% url 'setup' %}'"><i class="fa-solid fa-robot"></i> AI Interview</li>
+      <li onclick="location.href='{% url 'video_practice' %}'"><i class="fa-solid fa-video"></i> Video Practice</li>
+      <li onclick="location.href='{% url 'voice_analysis' %}'"><i class="fa-solid fa-microphone"></i> Voice Analysis</li>
+      <li onclick="location.href='{% url 'performance' %}'"><i class="fa-solid fa-chart-line"></i> Performance</li>
+      <li onclick="location.href='{% url 'logout' %}'"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
+    </ul>
+
+    <div style="background:rgba(0,0,0,0.5); padding:15px; border-radius:12px; margin-bottom:15px;">
+      <h3>🔥 Daily Streak</h3>
+      <p>Current Streak: <b>{{ current_streak }}</b> days</p>
+      <p>Longest Streak: <b>{{ longest_streak }}</b> days</p>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="header">
+      <h1>AI Interview Practice Dashboard</h1>
+      <p>Train smarter with AI-driven mock interviews, voice & video analysis.</p>
+    </div>
+
+    <div class="cards">
+
+      <div class="card">
+        <i class="fa-solid fa-list-check"></i>
+        <h3>Select Skills</h3>
+        <p>Choose your skills to get personalized interview questions.</p>
+        <button onclick="location.href='{% url 'skills' %}'">Select</button>
+      </div>
+
+      <div class="card">
+        <i class="fa-solid fa-robot"></i>
+        <h3>Start AI Interview</h3>
+        <p>Dynamic AI-generated interview questions.</p>
+        <button onclick="location.href='{% url 'setup' %}'">Start</button>
+      </div>
+
+      <div class="card">
+        <i class="fa-solid fa-video"></i>
+        <h3>Video Practice</h3>
+        <p>Record answers & analyze expressions.</p>
+        <button onclick="location.href='{% url 'video_practice' %}'">Record</button>
+      </div>
+
+      <div class="card">
+        <i class="fa-solid fa-microphone"></i>
+        <h3>Voice Analysis</h3>
+        <p>Analyze voice clarity & confidence.</p>
+        <button onclick="location.href='{% url 'voice_analysis' %}'">Analyze</button>
+      </div>
+
+      <div class="card">
+        <i class="fa-solid fa-chart-pie"></i>
+        <h3>Performance</h3>
+        <p>View AI feedback & performance score.</p>
+        <button onclick="location.href='{% url 'performance' %}'">View</button>
+      </div>
+
+      <div class="card">
+        <i class="fa-solid fa-file-arrow-up"></i>
+        <h3>Resume-Based Interview</h3>
+        <p>Upload resume & get personalized interview questions.</p>
+        <button onclick="location.href='{% url 'resume_upload' %}'">Upload Resume</button>
+      </div>
+
+      <div class="card">
+        <i class="fa-solid fa-briefcase"></i>
+        <h3>Role-Based Interview</h3>
+        <p>Practice interviews for specific job roles.</p>
+        <button onclick="location.href='/role-select/'">Choose Role</button>
+      </div>
+
+      <div class="card">
+        <i class="fa-solid fa-fire"></i>
+        <h3>Daily Streak</h3>
+        <p>Track your daily practice streak and consistency.</p>
+        <button onclick="location.href='{% url 'streak' %}'">View Streak</button>
+      </div>
+      
+    </div>
+
+    <div class="footer">
+      © 2026 Smart Interview AI | Final Year Project
+    </div>
+  </div>
+
+</body>
+</html>

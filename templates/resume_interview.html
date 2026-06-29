@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Resume Interview | Smart Interview AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      background:
+        linear-gradient(rgba(10,20,30,0.85), rgba(10,20,30,0.85)),
+        url("https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=80")
+        no-repeat center/cover;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .chat-container {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .bubble {
+      max-width: 75%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      line-height: 1.4;
+      font-size: 0.95rem;
+      white-space: pre-wrap;
+    }
+
+    .ai {
+      align-self: flex-start;
+      background: rgba(0, 150, 255, 0.2);
+      border: 1px solid rgba(0,150,255,0.4);
+    }
+
+    .user {
+      align-self: flex-end;
+      background: rgba(0, 255, 180, 0.2);
+      border: 1px solid rgba(0,255,180,0.4);
+      text-align: right;
+    }
+
+    .feedback {
+      align-self: flex-start;
+      background: rgba(255, 200, 0, 0.15);
+      border: 1px solid rgba(255,200,0,0.4);
+      color: #ffeaa7;
+      font-size: 0.9rem;
+    }
+
+    .input-bar {
+      padding: 15px;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    textarea {
+      flex: 1;
+      border-radius: 12px;
+      border: none;
+      padding: 10px;
+      font-size: 14px;
+      resize: none;
+      height: 48px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #00e5ff, #00ff9d);
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .timer-box {
+      font-weight: bold;
+      color: #00ff9d;
+    }
+
+    .quit-btn {
+      background: linear-gradient(135deg, #ff4d4d, #ff7a7a);
+      color: #000;
+    }
+
+    select, label {
+      font-size: 0.85rem;
+    }
+
+    .results-btn {
+      background: linear-gradient(135deg, #8a7cff, #00e5ff);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat-header">
+    <h3>📄 Resume-Based Interview</h3>
+
+    <div class="controls">
+      <label>
+        <input type="checkbox" id="timerToggle" checked>
+        Timer
+      </label>
+
+      <select id="timeLimit">
+        <option value="30">30s</option>
+        <option value="60" selected>60s</option>
+        <option value="90">90s</option>
+      </select>
+
+      <span class="timer-box" id="timerBox" style="display:none;">
+        ⏱️ <span id="timer">60</span>s
+      </span>
+
+      <button type="button" class="quit-btn" onclick="quitInterview()">❌ Quit</button>
+
+      <!-- ✅ Permanent View Results Button -->
+      <button type="button" id="viewResultsBtn" class="results-btn">📊 View Results</button>
+    </div>
+
+    <span>Smart Interview AI</span>
+  </div>
+
+  <div class="chat-container" id="chatBox"></div>
+
+  <form id="chatForm" class="input-bar">
+    {% csrf_token %}
+    <textarea id="answerInput" placeholder="Type your answer..." required></textarea>
+    <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+  </form>
+
+  <script>
+    const chatBox = document.getElementById("chatBox");
+    const form = document.getElementById("chatForm");
+    const answerInput = document.getElementById("answerInput");
+
+    let currentQuestion = "";
+    let timerInterval = null;
+
+    function addBubble(text, cls) {
+      const div = document.createElement("div");
+      div.className = "bubble " + cls;
+      div.innerText = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+
+      const enabled = document.getElementById("timerToggle").checked;
+      const timeLimit = parseInt(document.getElementById("timeLimit").value);
+      const timerBox = document.getElementById("timerBox");
+
+      if (!enabled) {
+        timerBox.style.display = "none";
+        return;
+      }
+
+      let timeLeft = timeLimit;
+      timerBox.style.display = "inline";
+      document.getElementById("timer").innerText = timeLeft;
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").innerText = timeLeft;
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          autoSubmit();
+        }
+      }, 1000);
+    }
+
+    async function loadResumeQuestion(answer = "") {
+      const formData = new FormData();
+      formData.append("answer", answer);
+      formData.append("prev_question", currentQuestion);
+
+      const res = await fetch("/api/next-resume-question/", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+
+      if (data.question) {
+        currentQuestion = data.question;
+        addBubble(data.question, "ai");
+        startTimer();
+      } else if (data.end) {
+        addBubble("✅ Interview completed. You can view results using the button above.", "feedback");
+        answerInput.disabled = true;
+      } else if (data.error) {
+        addBubble("❌ " + data.error, "ai");
+      }
+    }
+
+    function autoSubmit() {
+      if (answerInput.value.trim() !== "") {
+        addBubble(answerInput.value.trim(), "user");
+        loadResumeQuestion(answerInput.value.trim());
+        answerInput.value = "";
+      } else {
+        addBubble("⏰ Time up! Moving to next question.", "ai");
+        loadResumeQuestion("");
+      }
+    }
+
+    function quitInterview() {
+      if (!confirm("Are you sure you want to quit the interview?")) return;
+
+      fetch("/resume-interview/quit/", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}"
+        }
+      }).then(() => {
+        window.location.href = "/dashboard/";
+      });
+    }
+
+    // 🔥 View Results button handler
+    document.getElementById("viewResultsBtn").addEventListener("click", function () {
+      window.location.href = "/resume-interview/results/";
+    });
+
+    window.onload = () => {
+      loadResumeQuestion();
+    };
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const ans = answerInput.value.trim();
+      if (!ans) return;
+
+      addBubble(ans, "user");
+      answerInput.value = "";
+      loadResumeQuestion(ans);
+    });
+  </script>
+
+</body>
+</html>

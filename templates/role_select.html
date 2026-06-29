@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Select Role | Smart Interview AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      background: 
+        linear-gradient(rgba(8,15,25,0.85), rgba(8,15,25,0.85)),
+        url("https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=1600&q=80")
+        no-repeat center center/cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .glow {
+      position: absolute;
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(0,255,255,0.25), transparent 70%);
+      filter: blur(80px);
+      animation: float 6s ease-in-out infinite alternate;
+    }
+
+    @keyframes float {
+      from { transform: translate(-60px, -40px); }
+      to   { transform: translate(60px, 40px); }
+    }
+
+    .card {
+      position: relative;
+      z-index: 2;
+      width: 460px;
+      padding: 35px;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(14px);
+      border-radius: 18px;
+      box-shadow: 0 0 40px rgba(0,255,255,0.35);
+      text-align: center;
+      animation: fadeUp 1s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #bbb;
+      margin-bottom: 25px;
+    }
+
+    .roles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .role {
+      padding: 16px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      cursor: pointer;
+      transition: 0.3s ease;
+      font-weight: 500;
+    }
+
+    .role:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0,255,255,0.6);
+    }
+
+    .role.active {
+      background: rgba(0,255,255,0.18);
+      box-shadow: 0 0 20px rgba(0,255,255,0.9);
+      border-color: rgba(0,255,255,0.8);
+    }
+
+    button {
+      padding: 12px 34px;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      background: linear-gradient(90deg, #00f2fe, #4facfe);
+      color: #000;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.07);
+      box-shadow: 0 0 18px rgba(0,255,255,0.9);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow"></div>
+
+  <div class="card">
+    <h2>🚀 Choose Your Interview Role</h2>
+    <div class="subtitle">AI will tailor questions based on your selected role</div>
+
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="role" id="roleInput">
+
+      <div class="roles">
+        <div class="role" onclick="selectRole(this, 'Python Developer')">🐍 Python Developer</div>
+        <div class="role" onclick="selectRole(this, 'Java Developer')">☕ Java Developer</div>
+        <div class="role" onclick="selectRole(this, 'Data Scientist')">📊 Data Scientist</div>
+        <div class="role" onclick="selectRole(this, 'Full Stack Developer')">🌐 Full Stack Developer</div>
+      </div>
+
+      <button type="button" onclick="startInterview()">Start AI Interview</button>
+    </form>
+  </div>
+  <script>
+function selectRole(el, role) {
+  document.querySelectorAll('.role').forEach(r => r.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById("roleInput").value = role;
+}
+
+// 🔥 MAIN FIX
+function startInterview(){
+  let role = document.getElementById("roleInput").value;
+
+  if(!role){
+    alert("Please select a role first!");
+    return;
+  }
+
+  // ✅ Redirect with role
+  window.location.href = `/real-interview/?role=${encodeURIComponent(role)}`;
+}
+</script>
+  
+
+</body>
+</html>

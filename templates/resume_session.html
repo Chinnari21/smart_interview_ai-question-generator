@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<head><title>Interview Session</title></head>
+<body>
+  <h2>Interview Started</h2>
+  <p>Level: {{ request.session.level }}</p>
+  <p>Type: {{ request.session.interview_type }}</p>
+
+  <a href="{% url 'resume_result' %}">Finish Interview</a>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Select Your Skills | Smart Interview AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #0f2027, #203a43, #000);
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      color: #fff;
+      display: block;
+      padding: 40px 20px;
+    }
+
+    .container {
+      width: 95%;
+      max-width: 1200px;
+      margin: auto;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 0 30px rgba(0,255,255,0.25);
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 6px;
+      color: #00e5ff;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #ccc;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+
+    .category { margin-bottom: 26px; }
+
+    .category h2 {
+      color: #7fe7ff;
+      margin: 10px 0 12px;
+      font-size: 18px;
+      border-left: 4px solid #00e5ff;
+      padding-left: 10px;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .skill-card {
+      background: rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 12px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.25s;
+      border: 2px solid transparent;
+      font-size: 13px;
+    }
+
+    .skill-card:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 0 12px rgba(0,229,255,0.4);
+    }
+
+    .skill-card.selected {
+      border: 2px solid #00e5ff;
+      background: rgba(0,229,255,0.18);
+      box-shadow: 0 0 16px rgba(0,229,255,0.6);
+    }
+
+    .toggle-btn {
+      margin-top: 10px;
+      background: transparent;
+      border: none;
+      color: #00e5ff;
+      cursor: pointer;
+      font-size: 13px;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    .actions {
+      text-align: center;
+      margin-top: 20px;
+      position: sticky;
+      bottom: 0;
+      padding: 20px 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    }
+
+    button {
+      background: linear-gradient(135deg, #00e5ff, #00bcd4);
+      border: none;
+      padding: 12px 34px;
+      border-radius: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      color: #000;
+      box-shadow: 0 0 20px rgba(0,229,255,0.6);
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 28px rgba(0,229,255,0.9);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Select Your Skills</h1>
+    <div class="subtitle">Choose skills category-wise for better interview practice</div>
+
+    <!-- Programming Languages -->
+    <div class="category">
+      <h2>💻 Programming Languages</h2>
+      <div class="skills-grid" id="progSkills"></div>
+      <button class="toggle-btn" onclick="toggleShow('prog', this)">Show More</button>
+    </div>
+
+    <!-- Web & Frameworks -->
+    <div class="category">
+      <h2>🌐 Web & Frameworks</h2>
+      <div class="skills-grid" id="webSkills"></div>
+      <button class="toggle-btn" onclick="toggleShow('web', this)">Show More</button>
+    </div>
+
+    <!-- CS Core -->
+    <div class="category">
+      <h2>📚 CS Core</h2>
+      <div class="skills-grid" id="csSkills"></div>
+      <button class="toggle-btn" onclick="toggleShow('cs', this)">Show More</button>
+    </div>
+
+    <!-- Databases -->
+    <div class="category">
+      <h2>🗄️ Databases</h2>
+      <div class="skills-grid" id="dbSkills"></div>
+      <button class="toggle-btn" onclick="toggleShow('db', this)">Show More</button>
+    </div>
+
+    <!-- AI / ML -->
+    <div class="category">
+      <h2>🤖 AI / ML & Data</h2>
+      <div class="skills-grid" id="aiSkills"></div>
+      <button class="toggle-btn" onclick="toggleShow('ai', this)">Show More</button>
+    </div>
+
+    <!-- DevOps -->
+    <div class="category">
+      <h2>☁️ DevOps & Cloud</h2>
+      <div class="skills-grid" id="devopsSkills"></div>
+      <button class="toggle-btn" onclick="toggleShow('devops', this)">Show More</button>
+    </div>
+
+    <!-- HR -->
+    <div class="category">
+      <h2>🧑‍💼 HR & Behavioral</h2>
+      <div class="skills-grid" id="hrSkills"></div>
+    </div>
+
+    <div class="actions">
+      <button onclick="proceed()">Proceed</button>
+    </div>
+  </div>
+
+  <script>
+    const data = {
+      prog: ["Python","Java","C","C++","JavaScript","TypeScript","Go","Rust","PHP","Ruby","Kotlin","Swift","R","MATLAB","Dart","Scala","Bash","Perl","Groovy","Objective-C"],
+      web: ["HTML","CSS","React","Angular","Vue","Next.js","Nuxt.js","Django","Flask","FastAPI","Spring Boot","Node.js","Express.js","Svelte","Tailwind CSS","Bootstrap","jQuery","Webpack","Vite","GraphQL"],
+      cs: ["DSA","OOPS","DBMS","OS","CN","Computer Architecture","Compiler Design","Software Engineering","Distributed Systems","Design Patterns"],
+      db: ["MySQL","PostgreSQL","SQLite","MongoDB","Redis","Firebase","Cassandra","DynamoDB","Oracle","SQL Server"],
+      ai: ["Machine Learning","Deep Learning","NLP","Computer Vision","Data Science","Pandas","NumPy","TensorFlow","PyTorch","Scikit-learn","OpenCV","Keras","HuggingFace","LangChain"],
+      devops: ["Docker","Kubernetes","AWS","Azure","GCP","CI/CD","Git","GitHub Actions","Linux","Nginx","Terraform","Ansible"],
+      hr: ["HR Interview","Behavioral Questions","Communication Skills","Teamwork","Leadership","Problem Solving","Time Management","Stress Handling","Adaptability","Ethics & Integrity","Decision Making","Conflict Management"]
+    };
+
+    const defaultVisible = { prog: 8, web: 8, cs: 6, db: 6, ai: 6, devops: 6 };
+    const expanded = { prog: false, web: false, cs: false, db: false, ai: false, devops: false };
+    const selected = new Set();
+
+    function render(category, containerId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+
+      const list = expanded[category] ? data[category] : data[category].slice(0, defaultVisible[category]);
+
+      list.forEach(skill => {
+        const card = document.createElement("div");
+        card.className = "skill-card";
+        card.innerText = skill;
+        if (selected.has(skill)) card.classList.add("selected");
+        card.onclick = () => toggleSkill(card, skill);
+        container.appendChild(card);
+      });
+    }
+
+    function toggleSkill(card, skill) {
+      if (selected.has(skill)) {
+        selected.delete(skill);
+        card.classList.remove("selected");
+      } else {
+        selected.add(skill);
+        card.classList.add("selected");
+      }
+    }
+
+    function toggleShow(category, btn) {
+      expanded[category] = !expanded[category];
+      btn.innerText = expanded[category] ? "Show Less" : "Show More";
+
+      const map = {
+        prog: "progSkills",
+        web: "webSkills",
+        cs: "csSkills",
+        db: "dbSkills",
+        ai: "aiSkills",
+        devops: "devopsSkills"
+      };
+      render(category, map[category]);
+    }
+
+    function proceed() {
+      if (selected.size === 0) {
+        alert("Please select at least one skill 😅");
+        return;
+      }
+      const skills = Array.from(selected);
+      console.log("Selected Skills:", skills);
+      window.location.href = "/setup/?skills=" + encodeURIComponent(skills.join(","));
+    }
+
+    render("prog","progSkills");
+    render("web","webSkills");
+    render("cs","csSkills");
+    render("db","dbSkills");
+    render("ai","aiSkills");
+    render("devops","devopsSkills");
+
+    // HR always full
+    const hrContainer = document.getElementById("hrSkills");
+    data.hr.forEach(skill => {
+      const card = document.createElement("div");
+      card.className = "skill-card";
+      card.innerText = skill;
+      card.onclick = () => toggleSkill(card, skill);
+      hrContainer.appendChild(card);
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Interview Summary | Smart Interview AI</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f2027;
+      color: #fff;
+      padding: 20px;
+    }
+
+    .card {
+      background: rgba(0,0,0,0.6);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #00f7ff;
+    }
+
+    .q { color: #00f7ff; }
+    .a { color: #fff; }
+
+    .score {
+      color: #00ff9d;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .section {
+      margin-top: 8px;
+      font-size: 0.95rem;
+    }
+
+    .model {
+      color: #ffd166;
+    }
+
+    /* ⭐ Stars */
+    .star {
+      font-size: 24px;
+      cursor: pointer;
+      color: #555;
+    }
+
+    .star.selected {
+      color: gold;
+    }
+
+    textarea, input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      margin-top: 10px;
+      font-family: inherit;
+    }
+
+    button {
+      margin-top: 12px;
+      padding: 10px 20px;
+      background: #00f7ff;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<h2>📊 Interview Summary</h2>
+
+{% if answers %}
+  {% for a in answers %}
+
+    <div class="card">
+
+      <div class="q">Q{{ forloop.counter }}. {{ a.question_text }}</div>
+
+      <div class="a">👉 Your Answer: {{ a.user_answer }}</div>
+
+      <div class="score">⭐ Score: {{ a.score }}/5</div>
+
+      <div class="section">
+        📝 <b>Feedback:</b><br>
+        {{ a.feedback|linebreaks }}
+      </div>
+
+      {% if a.correct_answer %}
+        <div class="section model">
+          ✅ <b>Model Answer:</b><br>
+          {{ a.correct_answer }}
+        </div>
+      {% endif %}
+
+      {% if a.explanation %}
+        <div class="section model">
+          ℹ️ <b>Explanation:</b><br>
+          {{ a.explanation }}
+        </div>
+      {% endif %}
+
+    </div>
+
+  {% endfor %}
+{% else %}
+  <p>No interview data found.</p>
+{% endif %}
+
+<!-- 🔥 USER FEEDBACK SECTION -->
+<hr style="margin:30px 0; border-color:#00f7ff;">
+
+<div class="card">
+  <h3 style="color:#00f7ff;">💬 Help Us Improve Your Experience</h3>
+
+  <!-- ⭐ Rating -->
+  <div style="margin-top:10px;">
+    <span class="star" onclick="rate(1)">★</span>
+    <span class="star" onclick="rate(2)">★</span>
+    <span class="star" onclick="rate(3)">★</span>
+    <span class="star" onclick="rate(4)">★</span>
+    <span class="star" onclick="rate(5)">★</span>
+  </div>
+
+  <!-- 📝 Feedback -->
+  <textarea id="feedbackText" placeholder="What did you like? What can we improve?"></textarea>
+
+  <!-- ❓ Doubt -->
+  <input id="doubtText" type="text" placeholder="Any doubts about your interview?" />
+
+  <!-- 🚀 Button -->
+  <button onclick="submitFeedback()">📤 Submit Feedback</button>
+</div>
+
+<a href="/dashboard/" style="color:#00f7ff;">⬅ Back to Dashboard</a>
+
+<!-- ⚡ JS -->
+<script>
+let rating = 0;
+
+function rate(val) {
+  rating = val;
+  document.querySelectorAll(".star").forEach((s, i) => {
+    s.classList.toggle("selected", i < val);
+  });
+}
+
+function submitFeedback() {
+  const feedback = document.getElementById("feedbackText").value;
+  const doubt = document.getElementById("doubtText").value;
+
+  if (rating === 0) {
+    alert("Please select a rating ⭐");
+    return;
+  }
+
+  alert("✅ Feedback submitted successfully!");
+
+  console.log({
+    rating: rating,
+    feedback: feedback,
+    doubt: doubt
+  });
+
+  // reset
+  rating = 0;
+  document.querySelectorAll(".star").forEach(s => s.classList.remove("selected"));
+  document.getElementById("feedbackText").value = "";
+  document.getElementById("doubtText").value = "";
+}
+</script>
+
+</body>
+</html>

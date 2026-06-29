@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Interview Summary | Smart Interview AI</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f2027;
+      color: #fff;
+      padding: 20px;
+    }
+
+    .card {
+      background: rgba(0,0,0,0.6);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #00f7ff;
+    }
+
+    .q { color: #00f7ff; }
+    .a { color: #fff; }
+
+    .score {
+      color: #00ff9d;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .section {
+      margin-top: 8px;
+      font-size: 0.95rem;
+    }
+
+    .strength {
+      color: #00ff9d;
+    }
+
+    .weakness {
+      color: #ff4d4d;
+    }
+
+    .suggestion {
+      color: #00bfff;
+    }
+
+    .model {
+      color: #ffd166;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>📊 Interview Summary</h2>
+
+{% if answers %}
+  {% for a in answers %}
+
+    <div class="card">
+
+      <div class="q">Q{{ forloop.counter }}. {{ a.question_text }}</div>
+
+      <div class="a">👉 Your Answer: {{ a.user_answer }}</div>
+
+      <div class="score">⭐ Score: {{ a.score }}/5</div>
+
+      <!-- ✅ CLEAN FEEDBACK DISPLAY -->
+      <div class="section strength">
+        💪 <b>Strengths:</b><br>
+        {{ a.strengths }}
+      </div>
+
+      <div class="section weakness">
+        ⚠️ <b>Weaknesses:</b><br>
+        {{ a.weaknesses }}
+      </div>
+
+      <div class="section suggestion">
+        💡 <b>Suggestion:</b><br>
+        {{ a.suggestion }}
+      </div>
+
+      {% if a.correct_answer %}
+        <div class="section model">
+          ✅ <b>Model Answer:</b><br>
+          {{ a.correct_answer }}
+        </div>
+      {% endif %}
+
+      {% if a.explanation %}
+        <div class="section model">
+          ℹ️ <b>Explanation:</b><br>
+          {{ a.explanation }}
+        </div>
+      {% endif %}
+
+    </div>
+
+  {% endfor %}
+{% else %}
+  <p>No interview data found.</p>
+{% endif %}
+
+<a href="/dashboard/" style="color:#00f7ff;">⬅ Back to Dashboard</a>
+
+</body>
+</html>

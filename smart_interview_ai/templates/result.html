@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Interview Result | Smart Interview AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(10,20,30,0.9), rgba(10,20,30,0.9)),
+        url("https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80")
+        no-repeat center/cover;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #eaf2ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .result-card {
+      width: min(92vw, 900px);
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 34px 28px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.6);
+      text-align: center;
+      overflow-y: auto;
+      max-height: 90vh;
+    }
+
+    h1 { color: #00e5ff; margin-bottom: 6px; font-size: 32px; }
+    .subtitle { color: #bcdcff; margin-bottom: 18px; font-size: 14px; }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin: 16px 0 20px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,.06);
+      border-radius: 14px;
+      padding: 14px 10px;
+      box-shadow: 0 0 12px rgba(0,229,255,.25);
+    }
+
+    .stat h3 { margin: 0; font-size: 12px; color: #9fe8ff; }
+    .stat p { margin: 6px 0 0; font-size: 18px; font-weight: bold; }
+
+    .badges {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 8px 0 14px;
+    }
+
+    .badge {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: rgba(0,229,255,.15);
+      border: 1px solid rgba(0,229,255,.35);
+      color: #c9f5ff;
+      box-shadow: 0 0 10px rgba(0,229,255,.4);
+    }
+
+    .feedback-box {
+      margin-top: 14px;
+      background: rgba(255,255,255,.06);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: left;
+    }
+
+    .feedback-box h3 {
+      margin-top: 0;
+      color: #00e5ff;
+      font-size: 16px;
+    }
+
+    textarea, input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #0b1a22;
+      color: #fff;
+      margin-top: 6px;
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    .rating {
+      display: flex;
+      gap: 6px;
+      margin: 6px 0 10px;
+    }
+
+    .star {
+      cursor: pointer;
+      font-size: 22px;
+      color: #555;
+    }
+
+    .star.selected {
+      color: gold;
+      text-shadow: 0 0 6px gold;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      background: linear-gradient(135deg, #00e5ff, #00bcd4);
+      color: #002b33;
+      box-shadow: 0 0 14px rgba(0,229,255,.6);
+    }
+
+    .btn.secondary {
+      background: rgba(255,255,255,.12);
+      color: #eaf2ff;
+      box-shadow: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="result-card">
+    <h1>🎉 Interview Completed!</h1>
+    <div class="subtitle">Thanks for practicing! Help us improve by sharing your feedback.</div>
+
+    <!-- Summary -->
+    <div class="summary">
+      <div class="stat">
+        <h3>Level</h3>
+        <p>{{ request.session.level|default:"Beginner" }}</p>
+      </div>
+      <div class="stat">
+        <h3>Mode</h3>
+        <p>{{ request.session.mode|default:"Voice" }}</p>
+      </div>
+      <div class="stat">
+        <h3>Skills</h3>
+        <p>
+          {% if request.session.skills %}
+            {{ request.session.skills|join:", " }}
+          {% else %}
+            General
+          {% endif %}
+        </p>
+      </div>
+      <div class="stat">
+        <h3>Timer</h3>
+        <p>
+          {% if request.session.timer_enabled == "on" %}
+            {{ request.session.time_limit }}s / Q
+          {% else %}
+            Untimed
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <!-- Badges -->
+    <div class="badges">
+      <span class="badge">Good Communication</span>
+      <span class="badge">Clear Basics</span>
+      <span class="badge">Confident Tone</span>
+    </div>
+
+    <!-- Feedback Form -->
+    <div class="feedback-box">
+      <h3>⭐ Rate Your Experience</h3>
+      <div class="rating" id="ratingStars">
+        <span class="star" data-val="1">★</span>
+        <span class="star" data-val="2">★</span>
+        <span class="star" data-val="3">★</span>
+        <span class="star" data-val="4">★</span>
+        <span class="star" data-val="5">★</span>
+      </div>
+
+      <h3>📝 Your Feedback</h3>
+      <textarea rows="3" placeholder="What did you like? What can we improve?"></textarea>
+
+      <h3>❓ Ask a Question</h3>
+      <input type="text" placeholder="Any doubts about your interview or answers?" />
+    </div>
+
+    <div class="actions">
+      <button class="btn" onclick="alert('Feedback submitted! (Backend integration pending)')">📤 Submit Feedback</button>
+      <button class="btn secondary" onclick="window.location.href='/skills/'">🔁 New Interview</button>
+      <button class="btn secondary" onclick="window.location.href='/dashboard/'">🏠 Dashboard</button>
+    </div>
+  </div>
+
+  <script>
+    const stars = document.querySelectorAll(".star");
+    stars.forEach(star => {
+      star.addEventListener("click", () => {
+        stars.forEach(s => s.classList.remove("selected"));
+        const val = star.getAttribute("data-val");
+        stars.forEach(s => {
+          if (s.getAttribute("data-val") <= val) s.classList.add("selected");
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
